@@ -1,12 +1,25 @@
-FROM golang:1.26.1
+# Binaries
+bin/
+tmp/
+app
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
-WORKDIR /app
+# Logs
+*.log
 
-COPY go.mod go.sum ./
-RUN go mod download
+# Docker
+.dockerignore
 
-RUN go install github.com/air-verse/air@latest
+# OS files
+.DS_Store
+Thumbs.db
 
-COPY . .
+# Go dependencies (optional: usually tracked via go.mod, but vendor can be ignored)
+vendor/
 
-CMD ["air"]
+# Environment variables
+.env

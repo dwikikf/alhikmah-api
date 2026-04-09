@@ -1,0 +1,20 @@
+# Git
+.git
+.gitignore
+
+# Go Build artifacts
+tmp/
+app
+bin/
+build-errors.log
+
+# Docker configuration
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Markdown
+README.md
+
+# Optional: Local config files
+.env

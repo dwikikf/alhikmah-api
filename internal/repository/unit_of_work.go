@@ -3,6 +3,7 @@ package repository
 import "context"
 
 type Repository interface {
+	Class() ClassRepository
 	Student() StudentRepository
 }
 

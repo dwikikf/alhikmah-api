@@ -16,3 +16,7 @@ func NewRepositoryWithTx(tx pgx.Tx) repo.Repository {
 func (r *repository) Student() repo.StudentRepository {
 	return NewStudentRepository(r.tx)
 }
+
+func (r *repository) Class() repo.ClassRepository {
+	return NewClassRepository(r.tx)
+}

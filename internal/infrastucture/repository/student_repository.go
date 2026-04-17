@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/dwikikf/alhikmah-api/internal/domain"
 	"github.com/dwikikf/alhikmah-api/internal/infrastucture/database"
 	repo "github.com/dwikikf/alhikmah-api/internal/repository"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type studentRepository struct {
@@ -62,6 +64,12 @@ func (r *studentRepository) Create(ctx context.Context, student domain.Student) 
 	`
 	err := r.db.QueryRow(ctx, query, student.NISN, student.Name).Scan(&student.ID)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" { // unique_violation
+				return nil, repo.ErrDuplicate
+			}
+		}
 		return nil, err
 	}
 
@@ -76,7 +84,12 @@ func (r *studentRepository) Update(ctx context.Context, student domain.Student) 
 	`
 	cmdTag, err := r.db.Exec(ctx, query, student.NISN, student.Name, student.ID)
 	if err != nil {
-		// log.Printf("failed to update student with ID %d: %v", student.ID, err)
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23505" { // unique_violation
+				return repo.ErrDuplicate
+			}
+		}
 		return err
 	}
 

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/dwikikf/alhikmah-api/internal/domain"
 	"github.com/dwikikf/alhikmah-api/internal/dto"
 	"github.com/dwikikf/alhikmah-api/internal/repository"
 	"github.com/dwikikf/alhikmah-api/internal/usecase"
@@ -13,10 +12,10 @@ import (
 )
 
 type StudentHandler struct {
-	Usecase *usecase.StudentUseCase
+	Usecase *usecase.StudentUsecase
 }
 
-func NewStudentHandler(usecase *usecase.StudentUseCase) *StudentHandler {
+func NewStudentHandler(usecase *usecase.StudentUsecase) *StudentHandler {
 	return &StudentHandler{
 		Usecase: usecase,
 	}
@@ -46,7 +45,7 @@ func (h *StudentHandler) GetAll(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.Response{
 		Status:  "success",
 		Message: "students retrieved successfully",
-		Data:    toStudentResponse(students),
+		Data:    students,
 	})
 }
 
@@ -83,7 +82,7 @@ func (h *StudentHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, dto.Response{
 		Status:  "success",
 		Message: "student retrieved successfully",
-		Data:    toStudentResponse([]domain.Student{*student}),
+		Data:    student,
 	})
 }
 
@@ -99,13 +98,21 @@ func (h *StudentHandler) Create(c *gin.Context) {
 		return
 	}
 
-	newStudent := domain.Student{
+	newStudent := dto.CreateStudentRequest{
 		NISN: req.NISN,
 		Name: req.Name,
 	}
 
 	student, err := h.Usecase.CreateStudent(ctx, newStudent)
 	if err != nil {
+		if errors.Is(err, repository.ErrDuplicate) {
+			c.JSON(http.StatusConflict, dto.Response{
+				Status:  "error",
+				Message: "NISN already exists",
+			})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, dto.Response{
 			Status:  "error",
 			Message: "internal server error",
@@ -143,18 +150,25 @@ func (h *StudentHandler) Update(c *gin.Context) {
 		return
 	}
 
-	updatedStudent := domain.Student{
-		ID:   id,
+	updatedStudent := dto.UpdateStudentRequest{
 		NISN: req.NISN,
 		Name: req.Name,
 	}
 
-	err = h.Usecase.UpdateStudent(ctx, updatedStudent)
+	err = h.Usecase.UpdateStudent(ctx, id, updatedStudent)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			c.JSON(http.StatusNotFound, dto.Response{
 				Status:  "error",
 				Message: "student not found",
+			})
+			return
+		}
+
+		if errors.Is(err, repository.ErrDuplicate) {
+			c.JSON(http.StatusConflict, dto.Response{
+				Status:  "error",
+				Message: "NISN already exists",
 			})
 			return
 		}

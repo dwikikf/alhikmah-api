@@ -36,11 +36,10 @@ func (u *StudentUsecase) GetAllStudents(ctx context.Context) ([]dto.StudentRespo
 func (u *StudentUsecase) GetStudentByID(ctx context.Context, id int) (*dto.StudentResponse, error) {
 	student, err := u.StudentRepo.FindByID(ctx, id)
 	if err != nil {
+		if student == nil {
+			return nil, repository.ErrNotFound
+		}
 		return nil, err
-	}
-
-	if student == nil {
-		return nil, repository.ErrNotFound
 	}
 
 	return &dto.StudentResponse{
@@ -59,6 +58,10 @@ func (u *StudentUsecase) CreateStudent(ctx context.Context, student dto.CreateSt
 		createdStudent, err = repo.Student().Create(ctx, studentDomain)
 		return err
 	})
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &dto.StudentResponse{
 		ID:   createdStudent.ID,

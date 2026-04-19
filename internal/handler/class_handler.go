@@ -6,10 +6,10 @@ import (
 )
 
 type ClassHandler struct {
-	Usecase *usecase.ClassUseCase
+	Usecase *usecase.ClassUsecase
 }
 
-func NewClassHandler(usecase *usecase.ClassUseCase) *ClassHandler {
+func NewClassHandler(usecase *usecase.ClassUsecase) *ClassHandler {
 	return &ClassHandler{Usecase: usecase}
 }
 

@@ -26,27 +26,17 @@ func (h *StudentHandler) GetAll(c *gin.Context) {
 
 	students, err := h.Usecase.GetAllStudents(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.Response{
-			Status:  "error",
-			Message: "internal server error",
-		})
+		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
 	// optional: handle empty data
 	if len(students) == 0 {
-		c.JSON(http.StatusOK, dto.Response{
-			Status:  "success",
-			Message: "no students found",
-		})
+		SuccessResponse[dto.StudentResponse](c, http.StatusOK, "no students found", nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  "success",
-		Message: "students retrieved successfully",
-		Data:    students,
-	})
+	SuccessResponse(c, http.StatusOK, "students retrieved successfully", &students)
 }
 
 func (h *StudentHandler) GetByID(c *gin.Context) {
@@ -55,35 +45,22 @@ func (h *StudentHandler) GetByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.Response{
-			Status:  "error",
-			Message: "invalid student ID",
-		})
+		ErrorResponse(c, http.StatusBadRequest, "invalid student ID")
 		return
 	}
 
 	student, err := h.Usecase.GetStudentByID(ctx, id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.Response{
-			Status:  "error",
-			Message: "internal server error",
-		})
+		if errors.Is(err, repository.ErrNotFound) {
+			ErrorResponse(c, http.StatusNotFound, "student not found")
+			return
+		}
+
+		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	if student == nil {
-		c.JSON(http.StatusNotFound, dto.Response{
-			Status:  "error",
-			Message: "student not found",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  "success",
-		Message: "student retrieved successfully",
-		Data:    student,
-	})
+	SuccessResponse(c, http.StatusOK, "student retrieved successfully", student)
 }
 
 func (h *StudentHandler) Create(c *gin.Context) {
@@ -91,10 +68,7 @@ func (h *StudentHandler) Create(c *gin.Context) {
 
 	var req dto.CreateStudentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.Response{
-			Status:  "error",
-			Message: "invalid request body",
-		})
+		ErrorResponse(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
@@ -106,25 +80,15 @@ func (h *StudentHandler) Create(c *gin.Context) {
 	student, err := h.Usecase.CreateStudent(ctx, newStudent)
 	if err != nil {
 		if errors.Is(err, repository.ErrDuplicate) {
-			c.JSON(http.StatusConflict, dto.Response{
-				Status:  "error",
-				Message: "NISN already exists",
-			})
+			ErrorResponse(c, http.StatusConflict, "NISN already exists")
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, dto.Response{
-			Status:  "error",
-			Message: "internal server error",
-		})
+		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusCreated, dto.Response{
-		Status:  "success",
-		Message: "student created successfully",
-		Data:    student,
-	})
+	SuccessResponse(c, http.StatusCreated, "student created successfully", student)
 }
 
 func (h *StudentHandler) Update(c *gin.Context) {
@@ -134,19 +98,13 @@ func (h *StudentHandler) Update(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.Response{
-			Status:  "error",
-			Message: "invalid student ID",
-		})
+		ErrorResponse(c, http.StatusBadRequest, "invalid student ID")
 		return
 	}
 
 	var req dto.UpdateStudentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, dto.Response{
-			Status:  "error",
-			Message: "invalid request body",
-		})
+		ErrorResponse(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
@@ -158,32 +116,20 @@ func (h *StudentHandler) Update(c *gin.Context) {
 	err = h.Usecase.UpdateStudent(ctx, id, updatedStudent)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			c.JSON(http.StatusNotFound, dto.Response{
-				Status:  "error",
-				Message: "student not found",
-			})
+			ErrorResponse(c, http.StatusNotFound, "student not found")
 			return
 		}
 
 		if errors.Is(err, repository.ErrDuplicate) {
-			c.JSON(http.StatusConflict, dto.Response{
-				Status:  "error",
-				Message: "NISN already exists",
-			})
+			ErrorResponse(c, http.StatusConflict, "NISN already exists")
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, dto.Response{
-			Status:  "error",
-			Message: "internal server error",
-		})
+		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  "success",
-		Message: "student updated successfully",
-	})
+	SuccessResponse[dto.StudentResponse](c, http.StatusOK, "student updated successfully", nil)
 }
 
 func (h *StudentHandler) Delete(c *gin.Context) {
@@ -192,32 +138,20 @@ func (h *StudentHandler) Delete(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.Response{
-			Status:  "error",
-			Message: "invalid student ID",
-		})
+		ErrorResponse(c, http.StatusBadRequest, "invalid student ID")
 		return
 	}
 
 	err = h.Usecase.DeleteStudent(ctx, id)
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
-			c.JSON(http.StatusNotFound, dto.Response{
-				Status:  "error",
-				Message: "student not found",
-			})
+			ErrorResponse(c, http.StatusNotFound, "student not found")
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, dto.Response{
-			Status:  "error",
-			Message: "internal server error",
-		})
+		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.Response{
-		Status:  "success",
-		Message: "student deleted successfully",
-	})
+	SuccessResponse[dto.StudentResponse](c, http.StatusOK, "student deleted successfully", nil)
 }

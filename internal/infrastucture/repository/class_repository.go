@@ -11,15 +11,15 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type ClassRepository struct {
+type ClassRepositoryImpl struct {
 	db database.DBTX
 }
 
-func NewClassRepository(db database.DBTX) *ClassRepository {
-	return &ClassRepository{db: db}
+func NewClassRepository(db database.DBTX) *ClassRepositoryImpl {
+	return &ClassRepositoryImpl{db: db}
 }
 
-func (r *ClassRepository) FindAll(ctx context.Context) ([]domain.Class, error) {
+func (r *ClassRepositoryImpl) FindAll(ctx context.Context) ([]domain.Class, error) {
 	rows, err := r.db.Query(ctx, "SELECT id, code, name, grade FROM classes")
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (r *ClassRepository) FindAll(ctx context.Context) ([]domain.Class, error) {
 	return classes, nil
 }
 
-func (r *ClassRepository) FindByID(ctx context.Context, id int) (*domain.Class, error) {
+func (r *ClassRepositoryImpl) FindByID(ctx context.Context, id int) (*domain.Class, error) {
 	row := r.db.QueryRow(ctx, "SELECT id, code, name, grade FROM classes WHERE id = $1", id)
 
 	var class domain.Class
@@ -56,7 +56,7 @@ func (r *ClassRepository) FindByID(ctx context.Context, id int) (*domain.Class, 
 	return &class, nil
 }
 
-func (r *ClassRepository) Create(ctx context.Context, class domain.Class) (int, error) {
+func (r *ClassRepositoryImpl) Create(ctx context.Context, class domain.Class) (int, error) {
 	var newID int
 	query := `INSERT INTO classes (code, name, grade) VALUES ($1, $2, $3) RETURNING id`
 	err := r.db.QueryRow(ctx, query, class.Code, class.Name, class.Grade).Scan(&newID)
@@ -72,7 +72,7 @@ func (r *ClassRepository) Create(ctx context.Context, class domain.Class) (int, 
 	return newID, nil
 }
 
-func (r *ClassRepository) Update(ctx context.Context, class domain.Class) error {
+func (r *ClassRepositoryImpl) Update(ctx context.Context, class domain.Class) error {
 	query := `
 		UPDATE classes
 		SET code = $1, name = $2, grade = $3
@@ -96,7 +96,7 @@ func (r *ClassRepository) Update(ctx context.Context, class domain.Class) error 
 	return nil
 }
 
-func (r *ClassRepository) Delete(ctx context.Context, id int) error {
+func (r *ClassRepositoryImpl) Delete(ctx context.Context, id int) error {
 	cmdTag, err := r.db.Exec(ctx, "DELETE FROM classes WHERE id = $1", id)
 	if err != nil {
 		var pgErr *pgconn.PgError

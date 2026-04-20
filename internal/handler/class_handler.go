@@ -8,15 +8,20 @@ import (
 	"github.com/dwikikf/alhikmah-api/internal/dto"
 	"github.com/dwikikf/alhikmah-api/internal/repository"
 	"github.com/dwikikf/alhikmah-api/internal/usecase"
+	"github.com/dwikikf/alhikmah-api/pkg/validator"
 	"github.com/gin-gonic/gin"
 )
 
 type ClassHandler struct {
-	Usecase *usecase.ClassUsecase
+	Usecase   *usecase.ClassUsecase
+	validator *validator.CustomValidator
 }
 
-func NewClassHandler(usecase *usecase.ClassUsecase) *ClassHandler {
-	return &ClassHandler{Usecase: usecase}
+func NewClassHandler(usecase *usecase.ClassUsecase, validator *validator.CustomValidator) *ClassHandler {
+	return &ClassHandler{
+		Usecase:   usecase,
+		validator: validator,
+	}
 }
 
 func (h *ClassHandler) GetAll(c *gin.Context) {

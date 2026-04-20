@@ -11,15 +11,15 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type studentRepository struct {
+type StudentRepositoryImpl struct {
 	db database.DBTX
 }
 
-func NewStudentRepository(db database.DBTX) *studentRepository {
-	return &studentRepository{db: db}
+func NewStudentRepository(db database.DBTX) *StudentRepositoryImpl {
+	return &StudentRepositoryImpl{db: db}
 }
 
-func (r *studentRepository) FindAll(ctx context.Context) ([]domain.Student, error) {
+func (r *StudentRepositoryImpl) FindAll(ctx context.Context) ([]domain.Student, error) {
 	query := "SELECT s.id, s.nisn, s.name, c.id as class_id, c.code as class_code, c.name as class_name,  c.grade as class_grade FROM students s INNER JOIN classes c ON s.class_id = c.id"
 	rows, err := r.db.Query(ctx, query)
 
@@ -45,7 +45,7 @@ func (r *studentRepository) FindAll(ctx context.Context) ([]domain.Student, erro
 	return students, nil
 }
 
-func (r *studentRepository) FindByID(ctx context.Context, id int) (*domain.Student, error) {
+func (r *StudentRepositoryImpl) FindByID(ctx context.Context, id int) (*domain.Student, error) {
 	query := "SELECT s.id, s.nisn, s.name, c.id as class_id, c.code as class_code, c.name as class_name,  c.grade as class_grade FROM students s INNER JOIN classes c ON s.class_id = c.id WHERE s.id = $1"
 	row := r.db.QueryRow(ctx, query, id)
 
@@ -61,7 +61,7 @@ func (r *studentRepository) FindByID(ctx context.Context, id int) (*domain.Stude
 	return &student, nil
 }
 
-func (r *studentRepository) Create(ctx context.Context, student domain.Student) (*domain.Student, error) {
+func (r *StudentRepositoryImpl) Create(ctx context.Context, student domain.Student) (*domain.Student, error) {
 	query := `
 		INSERT INTO students (nisn, name, class_id)
 		VALUES ($1, $2, $3)
@@ -81,7 +81,7 @@ func (r *studentRepository) Create(ctx context.Context, student domain.Student) 
 	return &student, nil
 }
 
-func (r *studentRepository) Update(ctx context.Context, student domain.Student) error {
+func (r *StudentRepositoryImpl) Update(ctx context.Context, student domain.Student) error {
 	query := `
 		UPDATE students
 		SET nisn = $1, name = $2, class_id = $3
@@ -105,7 +105,7 @@ func (r *studentRepository) Update(ctx context.Context, student domain.Student) 
 	return nil
 }
 
-func (r *studentRepository) Delete(ctx context.Context, id int) error {
+func (r *StudentRepositoryImpl) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM students WHERE id = $1`
 
 	cmdTag, err := r.db.Exec(ctx, query, id)

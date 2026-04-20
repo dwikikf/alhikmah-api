@@ -3,29 +3,18 @@ package main
 import (
 	"log"
 
-	"github.com/dwikikf/alhikmah-api/internal/handler"
-	"github.com/dwikikf/alhikmah-api/internal/infrastucture/database"
-	infraRepo "github.com/dwikikf/alhikmah-api/internal/infrastucture/repository"
-	"github.com/dwikikf/alhikmah-api/internal/usecase"
-	"github.com/dwikikf/alhikmah-api/pkg/validator"
+	"github.com/dwikikf/alhikmah-api/internal/di"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	db, err := database.Connect()
+	app, err := di.InitializeApp()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	classRepo := infraRepo.NewClassRepository(db)
-	studentRepo := infraRepo.NewStudentRepository(db)
-	uow := infraRepo.NewUnitOfWork(db)
-	validator := validator.NewValidator()
-
-	studentUsecase := usecase.NewStudentUseCase(classRepo, studentRepo, uow)
-	studentHandler := handler.NewStudentHandler(studentUsecase, validator)
-	classUsecase := usecase.NewClassUseCase(classRepo, uow)
-	classHandler := handler.NewClassHandler(classUsecase)
+	studentHandler := app.Handlers.Student
+	classHandler := app.Handlers.Class
 
 	r := gin.Default()
 

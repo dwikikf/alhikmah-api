@@ -7,15 +7,15 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type unitOfWork struct {
+type UnitOfWorkImpl struct {
 	db *pgxpool.Pool
 }
 
-func NewUnitOfWork(db *pgxpool.Pool) *unitOfWork {
-	return &unitOfWork{db: db}
+func NewUnitOfWork(db *pgxpool.Pool) *UnitOfWorkImpl {
+	return &UnitOfWorkImpl{db: db}
 }
 
-func (u *unitOfWork) Do(ctx context.Context, fn func(repo.Repository) error) error {
+func (u *UnitOfWorkImpl) Do(ctx context.Context, fn func(repo.Repository) error) error {
 	tx, err := u.db.Begin(ctx)
 	if err != nil {
 		return err

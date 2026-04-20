@@ -1,3 +1,6 @@
+//go:build wireinject
+// +build wireinject
+
 package di
 
 import (
@@ -7,7 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func InitApp() (*App, error) {
+func InitializeApp() (*App, error) {
 	wire.Build(
 		database.Connect,
 		wire.Bind(new(database.DBTX), new(*pgxpool.Pool)),

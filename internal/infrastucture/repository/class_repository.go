@@ -48,7 +48,7 @@ func (r *ClassRepository) FindByID(ctx context.Context, id int) (*domain.Class, 
 	var class domain.Class
 	if err := row.Scan(&class.ID, &class.Code, &class.Name, &class.Grade); err != nil {
 		if err == pgx.ErrNoRows {
-			return nil, repo.ErrNotFound
+			return nil, repo.ErrClassNotFound
 		}
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (r *ClassRepository) Update(ctx context.Context, class domain.Class) error 
 	}
 
 	if cmdTag.RowsAffected() == 0 {
-		return repo.ErrNotFound
+		return repo.ErrClassNotFound
 	}
 
 	return nil
@@ -109,7 +109,7 @@ func (r *ClassRepository) Delete(ctx context.Context, id int) error {
 	}
 
 	if cmdTag.RowsAffected() == 0 {
-		return repo.ErrNotFound
+		return repo.ErrClassNotFound
 	}
 
 	return nil

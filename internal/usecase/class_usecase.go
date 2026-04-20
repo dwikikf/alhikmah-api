@@ -35,7 +35,7 @@ func (uc *ClassUsecase) GetClassByID(ctx context.Context, id int) (*dto.ClassRes
 	class, err := uc.ClassRepo.FindByID(ctx, id)
 	if err != nil {
 		if class == nil {
-			return nil, repository.ErrNotFound
+			return nil, repository.ErrClassNotFound
 		}
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (uc *ClassUsecase) UpdateClass(ctx context.Context, id int, class dto.Updat
 		}
 
 		if existing == nil {
-			return repository.ErrNotFound
+			return repository.ErrClassNotFound
 		}
 
 		return repo.Class().Update(ctx, classDomain)

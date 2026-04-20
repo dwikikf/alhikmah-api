@@ -40,7 +40,7 @@ func (u *StudentUsecase) GetStudentByID(ctx context.Context, id int) (*dto.Stude
 	student, err := u.StudentRepo.FindByID(ctx, id)
 	if err != nil {
 		if student == nil {
-			return nil, repository.ErrNotFound
+			return nil, repository.ErrStudentNotFound
 		}
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (u *StudentUsecase) CreateStudent(ctx context.Context, student dto.CreateSt
 	class, err := u.ClassRepo.FindByID(ctx, student.ClassID)
 	if err != nil {
 		if class == nil {
-			return nil, repository.ErrNotFound
+			return nil, repository.ErrStudentNotFound
 		}
 		return nil, err
 	}
@@ -95,6 +95,14 @@ func (u *StudentUsecase) CreateStudent(ctx context.Context, student dto.CreateSt
 }
 
 func (u *StudentUsecase) UpdateStudent(ctx context.Context, id int, student dto.UpdateStudentRequest) error {
+	class, err := u.ClassRepo.FindByID(ctx, student.ClassID)
+	if err != nil {
+		if class == nil {
+			return repository.ErrClassNotFound
+		}
+		return err
+	}
+
 	studentDomain := dto.ToUpdateStudentDomain(id, student)
 
 	return u.Uow.Do(ctx, func(repo repository.Repository) error {
@@ -108,7 +116,7 @@ func (u *StudentUsecase) UpdateStudent(ctx context.Context, id int, student dto.
 		}
 
 		if existing == nil {
-			return repository.ErrNotFound
+			return repository.ErrStudentNotFound
 		}
 
 		return repo.Student().Update(ctx, studentDomain)

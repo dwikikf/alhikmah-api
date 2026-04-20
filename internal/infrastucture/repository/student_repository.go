@@ -53,7 +53,7 @@ func (r *studentRepository) FindByID(ctx context.Context, id int) (*domain.Stude
 	if err := row.Scan(&student.ID, &student.NISN, &student.Name,
 		&student.Class.ID, &student.Class.Code, &student.Class.Name, &student.Class.Grade); err != nil {
 		if err == pgx.ErrNoRows {
-			return nil, repo.ErrNotFound
+			return nil, repo.ErrStudentNotFound
 		}
 		return nil, err
 	}
@@ -84,10 +84,10 @@ func (r *studentRepository) Create(ctx context.Context, student domain.Student) 
 func (r *studentRepository) Update(ctx context.Context, student domain.Student) error {
 	query := `
 		UPDATE students
-		SET nisn = $1, name = $2
-		WHERE id = $3
+		SET nisn = $1, name = $2, class_id = $3
+		WHERE id = $4
 	`
-	cmdTag, err := r.db.Exec(ctx, query, student.NISN, student.Name, student.ID)
+	cmdTag, err := r.db.Exec(ctx, query, student.NISN, student.Name, student.ClassID, student.ID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -99,7 +99,7 @@ func (r *studentRepository) Update(ctx context.Context, student domain.Student) 
 	}
 
 	if cmdTag.RowsAffected() == 0 {
-		return repo.ErrNotFound
+		return repo.ErrStudentNotFound
 	}
 
 	return nil
@@ -114,7 +114,7 @@ func (r *studentRepository) Delete(ctx context.Context, id int) error {
 	}
 
 	if cmdTag.RowsAffected() == 0 {
-		return repo.ErrNotFound
+		return repo.ErrStudentNotFound
 	}
 
 	return nil

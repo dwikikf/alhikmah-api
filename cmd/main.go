@@ -7,6 +7,7 @@ import (
 	"github.com/dwikikf/alhikmah-api/internal/infrastucture/database"
 	infraRepo "github.com/dwikikf/alhikmah-api/internal/infrastucture/repository"
 	"github.com/dwikikf/alhikmah-api/internal/usecase"
+	"github.com/dwikikf/alhikmah-api/pkg/validator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,9 +20,10 @@ func main() {
 	classRepo := infraRepo.NewClassRepository(db)
 	studentRepo := infraRepo.NewStudentRepository(db)
 	uow := infraRepo.NewUnitOfWork(db)
+	validator := validator.NewValidator()
 
 	studentUsecase := usecase.NewStudentUseCase(classRepo, studentRepo, uow)
-	studentHandler := handler.NewStudentHandler(studentUsecase)
+	studentHandler := handler.NewStudentHandler(studentUsecase, validator)
 	classUsecase := usecase.NewClassUseCase(classRepo, uow)
 	classHandler := handler.NewClassHandler(classUsecase)
 

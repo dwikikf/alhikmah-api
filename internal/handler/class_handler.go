@@ -24,12 +24,12 @@ func (h *ClassHandler) GetAll(c *gin.Context) {
 
 	classes, err := h.Usecase.GetAllClasses(ctx)
 	if err != nil {
-		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
+		ErrorResponse[any](c, http.StatusInternalServerError, "internal server error", nil)
 		return
 	}
 
 	if len(classes) == 0 {
-		SuccessResponse[dto.ClassResponse](c, http.StatusOK, "no classes found", nil)
+		SuccessResponse[any](c, http.StatusOK, "no classes found", nil)
 		return
 	}
 
@@ -43,18 +43,18 @@ func (h *ClassHandler) GetClassByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "invalid class ID")
+		ErrorResponse[any](c, http.StatusBadRequest, "invalid class ID", nil)
 		return
 	}
 
 	class, err := h.Usecase.GetClassByID(ctx, id)
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			ErrorResponse(c, http.StatusNotFound, "class not found")
+		if errors.Is(err, repository.ErrClassNotFound) {
+			ErrorResponse[any](c, http.StatusNotFound, "class not found", nil)
 			return
 		}
 
-		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
+		ErrorResponse[any](c, http.StatusInternalServerError, "internal server error", nil)
 		return
 	}
 
@@ -66,24 +66,18 @@ func (h *ClassHandler) CreateClass(c *gin.Context) {
 
 	var req dto.CreateClassRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "invalid request body")
+		ErrorResponse[any](c, http.StatusBadRequest, "invalid request body", nil)
 		return
 	}
 
-	newClass := dto.CreateClassRequest{
-		Code:  req.Code,
-		Name:  req.Name,
-		Grade: req.Grade,
-	}
-
-	id, err := h.Usecase.CreateClass(ctx, newClass)
+	id, err := h.Usecase.CreateClass(ctx, req)
 	if err != nil {
 		if errors.Is(err, repository.ErrDuplicate) {
-			ErrorResponse(c, http.StatusConflict, "class code already exists")
+			ErrorResponse[any](c, http.StatusConflict, "class code already exists", nil)
 			return
 		}
 
-		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
+		ErrorResponse[any](c, http.StatusInternalServerError, "internal server error", nil)
 		return
 	}
 
@@ -97,39 +91,33 @@ func (h *ClassHandler) UpdateClass(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "invalid class ID")
+		ErrorResponse[any](c, http.StatusBadRequest, "invalid class ID", nil)
 		return
 	}
 
 	var req dto.UpdateClassRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "invalid request body")
+		ErrorResponse[any](c, http.StatusBadRequest, "invalid request body", nil)
 		return
 	}
 
-	updateClass := dto.UpdateClassRequest{
-		Code:  req.Code,
-		Name:  req.Name,
-		Grade: req.Grade,
-	}
-
-	err = h.Usecase.UpdateClass(ctx, id, updateClass)
+	err = h.Usecase.UpdateClass(ctx, id, req)
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			ErrorResponse(c, http.StatusNotFound, "class not found")
+		if errors.Is(err, repository.ErrClassNotFound) {
+			ErrorResponse[any](c, http.StatusNotFound, "class not found", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrDuplicate) {
-			ErrorResponse(c, http.StatusConflict, "class code already exists")
+			ErrorResponse[any](c, http.StatusConflict, "class code already exists", nil)
 			return
 		}
 
-		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
+		ErrorResponse[any](c, http.StatusInternalServerError, "internal server error", nil)
 		return
 	}
 
-	SuccessResponse[dto.ClassResponse](c, http.StatusOK, "class updated successfully", nil)
+	SuccessResponse[any](c, http.StatusOK, "class updated successfully", nil)
 
 }
 
@@ -139,25 +127,25 @@ func (h *ClassHandler) DeleteClass(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "invalid class ID")
+		ErrorResponse[any](c, http.StatusBadRequest, "invalid class ID", nil)
 		return
 	}
 
 	err = h.Usecase.DeleteClass(ctx, id)
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			ErrorResponse(c, http.StatusNotFound, "class not found")
+		if errors.Is(err, repository.ErrClassNotFound) {
+			ErrorResponse[any](c, http.StatusNotFound, "class not found", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrForeignKey) {
-			ErrorResponse(c, http.StatusConflict, "cannot delete student with existing references")
+			ErrorResponse[any](c, http.StatusConflict, "cannot delete student with existing references", nil)
 			return
 		}
 
-		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
+		ErrorResponse[any](c, http.StatusInternalServerError, "internal server error", nil)
 		return
 	}
 
-	SuccessResponse[dto.ClassResponse](c, http.StatusOK, "class deleted successfully", nil)
+	SuccessResponse[any](c, http.StatusOK, "class deleted successfully", nil)
 }

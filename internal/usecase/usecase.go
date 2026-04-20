@@ -13,3 +13,11 @@ type StudentUseCase interface {
 	UpdateStudent(ctx context.Context, id int, student dto.UpdateStudentRequest) error
 	DeleteStudent(ctx context.Context, id int) error
 }
+
+type ClassUseCase interface {
+	GetAllClasses(ctx context.Context) ([]dto.ClassResponse, error)
+	GetClassByID(ctx context.Context, id int) (*dto.ClassResponse, error)
+	CreateClass(ctx context.Context, class dto.CreateClassRequest) (int, error)
+	UpdateClass(ctx context.Context, id int, class dto.UpdateClassRequest) error
+	DeleteClass(ctx context.Context, id int) error
+}

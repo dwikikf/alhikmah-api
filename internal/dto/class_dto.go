@@ -15,11 +15,28 @@ func ToClassListResponse(classes []domain.Class) []ClassResponse {
 	return res
 }
 
-func ToClassResponse(class domain.Class) ClassResponse {
-	return ClassResponse{
+func ToClassResponse(class domain.Class) *ClassResponse {
+	return &ClassResponse{
 		ID:    class.ID,
 		Code:  class.Code,
 		Name:  class.Name,
 		Grade: class.Grade,
+	}
+}
+
+func ToCreateClassDomain(req CreateClassRequest) domain.Class {
+	return domain.Class{
+		Code:  req.Code,
+		Name:  req.Name,
+		Grade: req.Grade,
+	}
+}
+
+func ToUpdateClassDomain(id int, req UpdateClassRequest) domain.Class {
+	return domain.Class{
+		ID:    id,
+		Code:  req.Code,
+		Name:  req.Name,
+		Grade: req.Grade,
 	}
 }

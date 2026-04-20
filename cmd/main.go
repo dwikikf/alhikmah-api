@@ -17,10 +17,13 @@ func main() {
 	}
 
 	studentRepo := infraRepo.NewStudentRepository(db)
+	classRepo := infraRepo.NewClassRepository(db)
 	uow := infraRepo.NewUnitOfWork(db)
 
 	studentUsecase := usecase.NewStudentUseCase(studentRepo, uow)
 	studentHandler := handler.NewStudentHandler(studentUsecase)
+	classUsecase := usecase.NewClassUseCase(classRepo, uow)
+	classHandler := handler.NewClassHandler(classUsecase)
 
 	r := gin.Default()
 
@@ -29,6 +32,12 @@ func main() {
 	r.POST("/students", studentHandler.Create)
 	r.PUT("/students/:id", studentHandler.Update)
 	r.DELETE("/students/:id", studentHandler.Delete)
+
+	r.GET("/classes", classHandler.GetAll)
+	r.GET("/classes/:id", classHandler.GetClassByID)
+	r.POST("/classes", classHandler.CreateClass)
+	r.PUT("/classes/:id", classHandler.UpdateClass)
+	r.DELETE("/classes/:id", classHandler.DeleteClass)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{

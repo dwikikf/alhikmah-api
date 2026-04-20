@@ -29,7 +29,7 @@ func (r *ClassRepository) FindAll(ctx context.Context) ([]domain.Class, error) {
 	var classes []domain.Class
 	for rows.Next() {
 		var class domain.Class
-		if err := rows.Scan(&class.ID, &class.Name, &class.Grade); err != nil {
+		if err := rows.Scan(&class.ID, &class.Code, &class.Name, &class.Grade); err != nil {
 			return nil, err
 		}
 		classes = append(classes, class)
@@ -99,6 +99,12 @@ func (r *ClassRepository) Update(ctx context.Context, class domain.Class) error 
 func (r *ClassRepository) Delete(ctx context.Context, id int) error {
 	cmdTag, err := r.db.Exec(ctx, "DELETE FROM classes WHERE id = $1", id)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23503" { // foreign_key_violation
+				return repo.ErrForeignKey
+			}
+		}
 		return err
 	}
 

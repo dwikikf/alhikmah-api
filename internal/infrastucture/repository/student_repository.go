@@ -20,7 +20,9 @@ func NewStudentRepository(db database.DBTX) *studentRepository {
 }
 
 func (r *studentRepository) FindAll(ctx context.Context) ([]domain.Student, error) {
-	rows, err := r.db.Query(ctx, "SELECT id, nisn, name FROM students")
+	query := "SELECT s.id, s.nisn, s.name, c.id as class_id, c.code as class_code, c.name as class_name,  c.grade as class_grade FROM students s INNER JOIN classes c ON s.class_id = c.id"
+	rows, err := r.db.Query(ctx, query)
+
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +31,8 @@ func (r *studentRepository) FindAll(ctx context.Context) ([]domain.Student, erro
 	var students []domain.Student
 	for rows.Next() {
 		var student domain.Student
-		if err := rows.Scan(&student.ID, &student.NISN, &student.Name); err != nil {
+		if err := rows.Scan(&student.ID, &student.NISN, &student.Name,
+			&student.Class.ID, &student.Class.Code, &student.Class.Name, &student.Class.Grade); err != nil {
 			return nil, err
 		}
 		students = append(students, student)
@@ -43,10 +46,12 @@ func (r *studentRepository) FindAll(ctx context.Context) ([]domain.Student, erro
 }
 
 func (r *studentRepository) FindByID(ctx context.Context, id int) (*domain.Student, error) {
-	row := r.db.QueryRow(ctx, "SELECT id, nisn, name FROM students WHERE id = $1", id)
+	query := "SELECT s.id, s.nisn, s.name, c.id as class_id, c.code as class_code, c.name as class_name,  c.grade as class_grade FROM students s INNER JOIN classes c ON s.class_id = c.id WHERE s.id = $1"
+	row := r.db.QueryRow(ctx, query, id)
 
 	var student domain.Student
-	if err := row.Scan(&student.ID, &student.NISN, &student.Name); err != nil {
+	if err := row.Scan(&student.ID, &student.NISN, &student.Name,
+		&student.Class.ID, &student.Class.Code, &student.Class.Name, &student.Class.Grade); err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, repo.ErrNotFound
 		}
@@ -58,11 +63,11 @@ func (r *studentRepository) FindByID(ctx context.Context, id int) (*domain.Stude
 
 func (r *studentRepository) Create(ctx context.Context, student domain.Student) (*domain.Student, error) {
 	query := `
-		INSERT INTO students (nisn, name)
-		VALUES ($1, $2)
+		INSERT INTO students (nisn, name, class_id)
+		VALUES ($1, $2, $3)
 		RETURNING id
 	`
-	err := r.db.QueryRow(ctx, query, student.NISN, student.Name).Scan(&student.ID)
+	err := r.db.QueryRow(ctx, query, student.NISN, student.Name, student.ClassID).Scan(&student.ID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {

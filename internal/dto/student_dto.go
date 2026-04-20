@@ -9,6 +9,13 @@ func ToStudentListResponse(students []domain.Student) []StudentResponse {
 			ID:   s.ID,
 			NISN: s.NISN,
 			Name: s.Name,
+			// ClassID: s.ClassID,
+			Class: ClassResponse{
+				ID:    s.Class.ID,
+				Code:  s.Class.Code,
+				Name:  s.Class.Name,
+				Grade: s.Class.Grade,
+			},
 		})
 	}
 	return res
@@ -19,20 +26,29 @@ func ToStudentResponse(students domain.Student) StudentResponse {
 		ID:   students.ID,
 		NISN: students.NISN,
 		Name: students.Name,
+		// ClassID: students.ClassID,
+		Class: ClassResponse{
+			ID:    students.Class.ID,
+			Code:  students.Class.Code,
+			Name:  students.Class.Name,
+			Grade: students.Class.Grade,
+		},
 	}
 }
 
 func ToCreateStudentDomain(req CreateStudentRequest) domain.Student {
 	return domain.Student{
-		NISN: req.NISN,
-		Name: req.Name,
+		NISN:    req.NISN,
+		Name:    req.Name,
+		ClassID: req.ClassID,
 	}
 }
 
 func ToUpdateStudentDomain(id int, req UpdateStudentRequest) domain.Student {
 	return domain.Student{
-		ID:   id,
-		NISN: req.NISN,
-		Name: req.Name,
+		ID:      id,
+		NISN:    req.NISN,
+		Name:    req.Name,
+		ClassID: req.ClassID,
 	}
 }

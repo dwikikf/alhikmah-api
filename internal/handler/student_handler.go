@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -73,14 +74,20 @@ func (h *StudentHandler) Create(c *gin.Context) {
 	}
 
 	newStudent := dto.CreateStudentRequest{
-		NISN: req.NISN,
-		Name: req.Name,
+		NISN:    req.NISN,
+		Name:    req.Name,
+		ClassID: req.ClassID,
 	}
 
 	student, err := h.Usecase.CreateStudent(ctx, newStudent)
 	if err != nil {
 		if errors.Is(err, repository.ErrDuplicate) {
 			ErrorResponse(c, http.StatusConflict, "NISN already exists")
+			return
+		}
+		log.Printf("error creating student: %v", err)
+		if errors.Is(err, repository.ErrNotFound) {
+			ErrorResponse(c, http.StatusNotFound, "class not found")
 			return
 		}
 

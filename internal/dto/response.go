@@ -11,6 +11,8 @@ type StudentResponse struct {
 	ID   int    `json:"id"`
 	NISN string `json:"nisn"`
 	Name string `json:"name"`
+	// ClassID int           `json:"class_id"`
+	Class ClassResponse `json:"class"`
 }
 
 type ClassResponse struct {

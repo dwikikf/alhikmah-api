@@ -1,13 +1,15 @@
 package dto
 
 type CreateStudentRequest struct {
-	NISN string `json:"nisn" binding:"required"`
-	Name string `json:"name" binding:"required"`
+	NISN    string `json:"nisn" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	ClassID int    `json:"class_id" binding:"required"`
 }
 
 type UpdateStudentRequest struct {
-	NISN string `json:"nisn" binding:"required"`
-	Name string `json:"name" binding:"required"`
+	NISN    string `json:"nisn" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	ClassID int    `json:"class_id" binding:"required"`
 }
 
 type CreateClassRequest struct {

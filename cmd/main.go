@@ -16,11 +16,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	studentRepo := infraRepo.NewStudentRepository(db)
 	classRepo := infraRepo.NewClassRepository(db)
+	studentRepo := infraRepo.NewStudentRepository(db)
 	uow := infraRepo.NewUnitOfWork(db)
 
-	studentUsecase := usecase.NewStudentUseCase(studentRepo, uow)
+	studentUsecase := usecase.NewStudentUseCase(classRepo, studentRepo, uow)
 	studentHandler := handler.NewStudentHandler(studentUsecase)
 	classUsecase := usecase.NewClassUseCase(classRepo, uow)
 	classHandler := handler.NewClassHandler(classUsecase)

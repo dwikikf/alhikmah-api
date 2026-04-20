@@ -150,6 +150,11 @@ func (h *ClassHandler) DeleteClass(c *gin.Context) {
 			return
 		}
 
+		if errors.Is(err, repository.ErrForeignKey) {
+			ErrorResponse(c, http.StatusConflict, "cannot delete student with existing references")
+			return
+		}
+
 		ErrorResponse(c, http.StatusInternalServerError, "internal server error")
 		return
 	}

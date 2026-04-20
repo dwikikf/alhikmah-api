@@ -9,15 +9,18 @@ import (
 )
 
 type StudentUsecase struct {
+	ClassRepo   repository.ClassRepository   // untuk cek class saat create/update student
 	StudentRepo repository.StudentRepository // untuk GET
 	Uow         repository.UnitOfWork        // untuk WRITE
 }
 
 func NewStudentUseCase(
+	classRepo repository.ClassRepository,
 	studentRepo repository.StudentRepository,
 	uow repository.UnitOfWork,
 ) *StudentUsecase {
 	return &StudentUsecase{
+		ClassRepo:   classRepo,
 		StudentRepo: studentRepo,
 		Uow:         uow,
 	}
@@ -46,14 +49,29 @@ func (u *StudentUsecase) GetStudentByID(ctx context.Context, id int) (*dto.Stude
 		ID:   student.ID,
 		NISN: student.NISN,
 		Name: student.Name,
+		// ClassID: student.ClassID,
+		Class: dto.ClassResponse{
+			ID:    student.Class.ID,
+			Code:  student.Class.Code,
+			Name:  student.Class.Name,
+			Grade: student.Class.Grade,
+		},
 	}, nil
 }
 
 func (u *StudentUsecase) CreateStudent(ctx context.Context, student dto.CreateStudentRequest) (*dto.StudentResponse, error) {
+	class, err := u.ClassRepo.FindByID(ctx, student.ClassID)
+	if err != nil {
+		if class == nil {
+			return nil, repository.ErrNotFound
+		}
+		return nil, err
+	}
+
 	var createdStudent *domain.Student
 	studentDomain := dto.ToCreateStudentDomain(student)
 
-	err := u.Uow.Do(ctx, func(repo repository.Repository) error {
+	err = u.Uow.Do(ctx, func(repo repository.Repository) error {
 		var err error
 		createdStudent, err = repo.Student().Create(ctx, studentDomain)
 		return err
@@ -67,6 +85,12 @@ func (u *StudentUsecase) CreateStudent(ctx context.Context, student dto.CreateSt
 		ID:   createdStudent.ID,
 		NISN: createdStudent.NISN,
 		Name: createdStudent.Name,
+		Class: dto.ClassResponse{
+			ID:    class.ID,
+			Code:  class.Code,
+			Name:  class.Name,
+			Grade: class.Grade,
+		},
 	}, err
 }
 

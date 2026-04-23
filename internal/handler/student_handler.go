@@ -29,16 +29,16 @@ func (h *StudentHandler) GetAll(c *gin.Context) {
 
 	students, err := h.Usecase.GetAllStudents(ctx)
 	if err != nil {
-		ErrorResponse[any](c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
 		return
 	}
 
 	if len(students) == 0 {
-		SuccessResponse[any](c, http.StatusOK, "Siswa tidak ditemukan, data kosong", nil)
+		SuccessResponse(c, http.StatusOK, "Siswa tidak ditemukan, data kosong", nil)
 		return
 	}
 
-	SuccessResponse(c, http.StatusOK, "Siswa berhasil diambil", &students)
+	SuccessResponse(c, http.StatusOK, "Siswa berhasil diambil", students)
 }
 
 func (h *StudentHandler) GetByID(c *gin.Context) {
@@ -47,18 +47,18 @@ func (h *StudentHandler) GetByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse[any](c, http.StatusBadRequest, "ID siswa tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "ID siswa tidak valid", nil)
 		return
 	}
 
 	student, err := h.Usecase.GetStudentByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, repository.ErrStudentNotFound) {
-			ErrorResponse[any](c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
 			return
 		}
 
-		ErrorResponse[any](c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (h *StudentHandler) Create(c *gin.Context) {
 
 	var req dto.CreateStudentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrorResponse[any](c, http.StatusBadRequest, "ID siswa tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "ID siswa tidak valid", nil)
 		return
 	}
 
@@ -82,16 +82,16 @@ func (h *StudentHandler) Create(c *gin.Context) {
 	student, err := h.Usecase.CreateStudent(ctx, req)
 	if err != nil {
 		if errors.Is(err, repository.ErrDuplicate) {
-			ErrorResponse[any](c, http.StatusConflict, "NISN sudah digunakan", nil)
+			ErrorResponse(c, http.StatusConflict, "NISN sudah digunakan", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrStudentNotFound) {
-			ErrorResponse[any](c, http.StatusNotFound, "Kelas tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Kelas tidak ditemukan", nil)
 			return
 		}
 
-		ErrorResponse[any](c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
 		return
 	}
 
@@ -105,13 +105,13 @@ func (h *StudentHandler) Update(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse[any](c, http.StatusBadRequest, "ID siswa tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "ID siswa tidak valid", nil)
 		return
 	}
 
 	var req dto.UpdateStudentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrorResponse[any](c, http.StatusBadRequest, "Data permintaan tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "Data permintaan tidak valid", nil)
 		return
 	}
 
@@ -123,30 +123,30 @@ func (h *StudentHandler) Update(c *gin.Context) {
 	err = h.Usecase.UpdateStudent(ctx, id, req)
 	if err != nil {
 		if errors.Is(err, repository.ErrClassNotFound) {
-			ErrorResponse[any](c, http.StatusNotFound, "Kelas tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Kelas tidak ditemukan", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrStudentNotFound) {
-			ErrorResponse[any](c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrDuplicate) {
-			ErrorResponse[any](c, http.StatusConflict, "NISN sudah digunakan", nil)
+			ErrorResponse(c, http.StatusConflict, "NISN sudah digunakan", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrForeignKey) {
-			ErrorResponse[any](c, http.StatusBadRequest, "Kelas tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusBadRequest, "Kelas tidak ditemukan", nil)
 			return
 		}
 
-		ErrorResponse[any](c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
 		return
 	}
 
-	SuccessResponse[any](c, http.StatusOK, "Siswa berhasil diperbarui", nil)
+	SuccessResponse(c, http.StatusOK, "Siswa berhasil diperbarui", nil)
 }
 
 func (h *StudentHandler) Delete(c *gin.Context) {
@@ -155,20 +155,20 @@ func (h *StudentHandler) Delete(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse[any](c, http.StatusBadRequest, "ID siswa tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "ID siswa tidak valid", nil)
 		return
 	}
 
 	err = h.Usecase.DeleteStudent(ctx, id)
 	if err != nil {
 		if errors.Is(err, repository.ErrStudentNotFound) {
-			ErrorResponse[any](c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
 			return
 		}
 
-		ErrorResponse[any](c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
 		return
 	}
 
-	SuccessResponse[any](c, http.StatusOK, "Siswa berhasil dihapus", nil)
+	SuccessResponse(c, http.StatusOK, "Siswa berhasil dihapus", nil)
 }

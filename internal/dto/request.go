@@ -13,13 +13,13 @@ type UpdateStudentRequest struct {
 }
 
 type CreateClassRequest struct {
-	Code  string `json:"code" binding:"required" validate:"required,len=20,min=5,max=20"`
+	Code  string `json:"code" binding:"required" validate:"required,min=5,max=20"`
 	Name  string `json:"name" binding:"required" validate:"required,min=3,max=100"`
-	Grade int    `json:"grade" binding:"required" validate:"required,oneof=1 2 3 4 5 6,numeric,len=1"`
+	Grade int    `json:"grade" binding:"required" validate:"required,oneof=1 2 3 4 5 6,numeric"`
 }
 
 type UpdateClassRequest struct {
-	Code  string `json:"code" binding:"required" validate:"required,len=20,min=5,max=20"`
+	Code  string `json:"code" binding:"required" validate:"required,min=5,max=20"`
 	Name  string `json:"name" binding:"required" validate:"required,min=3,max=100"`
-	Grade int    `json:"grade" binding:"required" validate:"required,oneof=1 2 3 4 5 6,numeric,len=1"`
+	Grade int    `json:"grade" binding:"required" validate:"required,oneof=1 2 3 4 5 6,numeric"`
 }

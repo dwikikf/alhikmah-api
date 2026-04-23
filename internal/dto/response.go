@@ -1,10 +1,10 @@
 package dto
 
-type Response[T any] struct {
+type Response struct {
 	Status  string `json:"status"`
 	Message string `json:"message,omitempty"`
-	Data    T      `json:"data,omitempty"`
-	Errors  T      `json:"errors,omitempty"`
+	Data    any    `json:"data,omitempty"`
+	Errors  any    `json:"errors,omitempty"`
 }
 
 type StudentResponse struct {

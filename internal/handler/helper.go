@@ -5,16 +5,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SuccessResponse[T any](c *gin.Context, code int, message string, data T) {
-	c.JSON(code, dto.Response[T]{
+func SuccessResponse(c *gin.Context, code int, message string, data any) {
+	c.JSON(code, dto.Response{
 		Status:  "Sukses",
 		Message: message,
 		Data:    data,
 	})
 }
 
-func ErrorResponse[T any](c *gin.Context, code int, message string, errors T) {
-	c.JSON(code, dto.Response[T]{
+func ErrorResponse(c *gin.Context, code int, message string, errors any) {
+	c.JSON(code, dto.Response{
 		Status:  "Error",
 		Message: message,
 		Errors:  errors,

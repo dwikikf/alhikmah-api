@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+      target: dev
+    container_name: alhikmah_api_dev
+    volumes:
+      - .:/app
+      - /app/tmp
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - migrate
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: alhikmah_db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: alhikmah_db_dev
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: alhikmah_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  migrate:
+    image: migrate/migrate
+    container_name: alhikmah_migrate
+    depends_on:
+      - db
+    volumes:
+      - ./migrations:/migrations
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "sleep 5 &&
+      migrate
+      -path /migrations
+      -database postgres://postgres:password@db:5432/alhikmah_db?sslmode=disable
+      up"
+    restart: on-failure
+
+volumes:
+  db_data:

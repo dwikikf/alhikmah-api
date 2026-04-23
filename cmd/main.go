@@ -25,10 +25,10 @@ func main() {
 	r.DELETE("/students/:id", studentHandler.Delete)
 
 	r.GET("/classes", classHandler.GetAll)
-	r.GET("/classes/:id", classHandler.GetClassByID)
-	r.POST("/classes", classHandler.CreateClass)
-	r.PUT("/classes/:id", classHandler.UpdateClass)
-	r.DELETE("/classes/:id", classHandler.DeleteClass)
+	r.GET("/classes/:id", classHandler.GetByID)
+	r.POST("/classes", classHandler.Create)
+	r.PUT("/classes/:id", classHandler.Update)
+	r.DELETE("/classes/:id", classHandler.Delete)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{

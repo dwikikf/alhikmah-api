@@ -24,14 +24,18 @@ func InitializeApp() (*App, error) {
 	classRepositoryImpl := repository.NewClassRepository(pool)
 	studentRepositoryImpl := repository.NewStudentRepository(pool)
 	unitOfWorkImpl := repository.NewUnitOfWork(pool)
-	studentUsecase := usecase.NewStudentUseCase(classRepositoryImpl, studentRepositoryImpl, unitOfWorkImpl)
+	studentUsecaseImpl := usecase.NewStudentUseCaseImpl(classRepositoryImpl, studentRepositoryImpl, unitOfWorkImpl)
 	customValidator := validator.NewValidator()
-	studentHandler := handler.NewStudentHandler(studentUsecase, customValidator)
-	classUsecase := usecase.NewClassUseCase(classRepositoryImpl, unitOfWorkImpl)
-	classHandler := handler.NewClassHandler(classUsecase, customValidator)
+	studentHandler := handler.NewStudentHandler(studentUsecaseImpl, customValidator)
+	classUsecaseImpl := usecase.NewClassUseCaseImpl(classRepositoryImpl, unitOfWorkImpl)
+	classHandler := handler.NewClassHandler(classUsecaseImpl, customValidator)
+	attendanceRepositoryImpl := repository.NewAttendanceRepository(pool)
+	attendanceUsecaseImpl := usecase.NewAttendanceUseCaseImpl(attendanceRepositoryImpl, unitOfWorkImpl)
+	attendanceHandler := handler.NewAttendanceHandler(attendanceUsecaseImpl, customValidator)
 	handlers := &Handlers{
-		Student: studentHandler,
-		Class:   classHandler,
+		Student:    studentHandler,
+		Class:      classHandler,
+		Attendance: attendanceHandler,
 	}
 	app := &App{
 		Handlers: handlers,

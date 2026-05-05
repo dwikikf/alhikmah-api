@@ -13,11 +13,11 @@ import (
 )
 
 type StudentHandler struct {
-	Usecase   *usecase.StudentUsecase
+	Usecase   *usecase.StudentUsecaseImpl
 	validator *validator.CustomValidator
 }
 
-func NewStudentHandler(usecase *usecase.StudentUsecase, validator *validator.CustomValidator) *StudentHandler {
+func NewStudentHandler(usecase *usecase.StudentUsecaseImpl, validator *validator.CustomValidator) *StudentHandler {
 	return &StudentHandler{
 		Usecase:   usecase,
 		validator: validator,
@@ -62,7 +62,7 @@ func (h *StudentHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, http.StatusOK, "Siswa berhasil diambil", student)
+	SuccessResponse(c, http.StatusOK, "Siswa berhasil diambil", &student)
 }
 
 func (h *StudentHandler) Create(c *gin.Context) {
@@ -95,7 +95,7 @@ func (h *StudentHandler) Create(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, http.StatusCreated, "Siswa berhasil dibuat", student)
+	SuccessResponse(c, http.StatusCreated, "Siswa berhasil dibuat", &student)
 }
 
 func (h *StudentHandler) Update(c *gin.Context) {

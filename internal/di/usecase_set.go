@@ -6,6 +6,7 @@ import (
 )
 
 var usecaseSet = wire.NewSet(
-	usecase.NewStudentUseCase,
-	usecase.NewClassUseCase,
+	usecase.NewStudentUseCaseImpl,
+	usecase.NewClassUseCaseImpl,
+	usecase.NewAttendanceUseCaseImpl,
 )

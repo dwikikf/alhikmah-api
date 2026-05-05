@@ -20,3 +20,7 @@ func (r *repository) Student() repo.StudentRepository {
 func (r *repository) Class() repo.ClassRepository {
 	return NewClassRepository(r.tx)
 }
+
+func (r *repository) Attendance() repo.AttendanceRepository {
+	return NewAttendanceRepository(r.tx)
+}

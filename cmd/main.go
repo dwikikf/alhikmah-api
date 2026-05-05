@@ -15,6 +15,7 @@ func main() {
 
 	studentHandler := app.Handlers.Student
 	classHandler := app.Handlers.Class
+	attendanceHandler := app.Handlers.Attendance
 
 	r := gin.Default()
 
@@ -29,6 +30,8 @@ func main() {
 	r.POST("/classes", classHandler.Create)
 	r.PUT("/classes/:id", classHandler.Update)
 	r.DELETE("/classes/:id", classHandler.Delete)
+
+	r.POST("/checkin", attendanceHandler.CheckedIn)
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{

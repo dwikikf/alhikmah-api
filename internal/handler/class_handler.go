@@ -13,11 +13,11 @@ import (
 )
 
 type ClassHandler struct {
-	Usecase   *usecase.ClassUsecase
+	Usecase   *usecase.ClassUsecaseImpl
 	validator *validator.CustomValidator
 }
 
-func NewClassHandler(usecase *usecase.ClassUsecase, validator *validator.CustomValidator) *ClassHandler {
+func NewClassHandler(usecase *usecase.ClassUsecaseImpl, validator *validator.CustomValidator) *ClassHandler {
 	return &ClassHandler{
 		Usecase:   usecase,
 		validator: validator,
@@ -63,7 +63,7 @@ func (h *ClassHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, http.StatusOK, "class retrieved successfully", class)
+	SuccessResponse(c, http.StatusOK, "class retrieved successfully", &class)
 }
 
 func (h *ClassHandler) Create(c *gin.Context) {

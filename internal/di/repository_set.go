@@ -10,10 +10,12 @@ var repositorySet = wire.NewSet(
 	//constructor
 	infraRepo.NewStudentRepository,
 	infraRepo.NewClassRepository,
+	infraRepo.NewAttendanceRepository,
 	infraRepo.NewUnitOfWork,
 
 	// binding interface to implementation
 	wire.Bind(new(repository.StudentRepository), new(*infraRepo.StudentRepositoryImpl)),
 	wire.Bind(new(repository.ClassRepository), new(*infraRepo.ClassRepositoryImpl)),
+	wire.Bind(new(repository.AttendanceRepository), new(*infraRepo.AttendanceRepositoryImpl)),
 	wire.Bind(new(repository.UnitOfWork), new(*infraRepo.UnitOfWorkImpl)),
 )

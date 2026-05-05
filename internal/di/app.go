@@ -7,6 +7,7 @@ type App struct {
 }
 
 type Handlers struct {
-	Student *handler.StudentHandler
-	Class   *handler.ClassHandler
+	Student    *handler.StudentHandler
+	Class      *handler.ClassHandler
+	Attendance *handler.AttendanceHandler
 }

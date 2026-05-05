@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	"github.com/dwikikf/alhikmah-api/internal/dto"
 )
@@ -20,4 +21,9 @@ type ClassUseCase interface {
 	CreateClass(ctx context.Context, class dto.CreateClassRequest) (int, error)
 	UpdateClass(ctx context.Context, id int, class dto.UpdateClassRequest) error
 	DeleteClass(ctx context.Context, id int) error
+}
+
+type AttendanceUsecase interface {
+	IsCheckedIn(ctx context.Context, studentID int, date time.Time) (bool, error)
+	CheckIn(ctx context.Context, att dto.CreateAttendanceRequest) (int, error)
 }

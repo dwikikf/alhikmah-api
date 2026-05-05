@@ -11,27 +11,29 @@ func ToStudentListResponse(students []domain.Student) []StudentResponse {
 			Name: s.Name,
 			// ClassID: s.ClassID,
 			Class: ClassResponse{
-				ID:    s.Class.ID,
-				Code:  s.Class.Code,
-				Name:  s.Class.Name,
-				Grade: s.Class.Grade,
+				ID:        s.Class.ID,
+				Code:      s.Class.Code,
+				Name:      s.Class.Name,
+				Grade:     s.Class.Grade,
+				StartTime: s.Class.StartTime,
 			},
 		})
 	}
 	return res
 }
 
-func ToStudentResponse(students domain.Student) StudentResponse {
-	return StudentResponse{
+func ToStudentResponse(students domain.Student) *StudentResponse {
+	return &StudentResponse{
 		ID:   students.ID,
 		NISN: students.NISN,
 		Name: students.Name,
 		// ClassID: students.ClassID,
 		Class: ClassResponse{
-			ID:    students.Class.ID,
-			Code:  students.Class.Code,
-			Name:  students.Class.Name,
-			Grade: students.Class.Grade,
+			ID:        students.Class.ID,
+			Code:      students.Class.Code,
+			Name:      students.Class.Name,
+			Grade:     students.Class.Grade,
+			StartTime: students.Class.StartTime,
 		},
 	}
 }

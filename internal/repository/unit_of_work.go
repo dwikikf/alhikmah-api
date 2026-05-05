@@ -5,6 +5,7 @@ import "context"
 type Repository interface {
 	Class() ClassRepository
 	Student() StudentRepository
+	Attendance() AttendanceRepository
 }
 
 type UnitOfWork interface {

@@ -20,7 +20,7 @@ func NewStudentRepository(db database.DBTX) *StudentRepositoryImpl {
 }
 
 func (r *StudentRepositoryImpl) FindAll(ctx context.Context) ([]domain.Student, error) {
-	query := "SELECT s.id, s.nisn, s.name, c.id as class_id, c.code as class_code, c.name as class_name,  c.grade as class_grade FROM students s INNER JOIN classes c ON s.class_id = c.id"
+	query := "SELECT s.id, s.nisn, s.name, c.id as class_id, c.code as class_code, c.name as class_name,  c.grade as class_grade, c.start_time as start_time FROM students s INNER JOIN classes c ON s.class_id = c.id"
 	rows, err := r.db.Query(ctx, query)
 
 	if err != nil {
@@ -31,8 +31,10 @@ func (r *StudentRepositoryImpl) FindAll(ctx context.Context) ([]domain.Student, 
 	var students []domain.Student
 	for rows.Next() {
 		var student domain.Student
+		student.Class = domain.Class{}
+
 		if err := rows.Scan(&student.ID, &student.NISN, &student.Name,
-			&student.Class.ID, &student.Class.Code, &student.Class.Name, &student.Class.Grade); err != nil {
+			&student.Class.ID, &student.Class.Code, &student.Class.Name, &student.Class.Grade, &student.Class.StartTime); err != nil {
 			return nil, err
 		}
 		students = append(students, student)
@@ -46,12 +48,22 @@ func (r *StudentRepositoryImpl) FindAll(ctx context.Context) ([]domain.Student, 
 }
 
 func (r *StudentRepositoryImpl) FindByID(ctx context.Context, id int) (*domain.Student, error) {
-	query := "SELECT s.id, s.nisn, s.name, c.id as class_id, c.code as class_code, c.name as class_name,  c.grade as class_grade FROM students s INNER JOIN classes c ON s.class_id = c.id WHERE s.id = $1"
+	query := "SELECT s.id, s.nisn, s.name, c.id as class_id, c.code as class_code, c.name as class_name, c.grade as class_grade, c.start_time as start_time FROM students s INNER JOIN classes c ON s.class_id = c.id WHERE s.id = $1"
 	row := r.db.QueryRow(ctx, query, id)
 
 	var student domain.Student
-	if err := row.Scan(&student.ID, &student.NISN, &student.Name,
-		&student.Class.ID, &student.Class.Code, &student.Class.Name, &student.Class.Grade); err != nil {
+	student.Class = domain.Class{}
+
+	if err := row.Scan(
+		&student.ID,
+		&student.NISN,
+		&student.Name,
+		&student.Class.ID,
+		&student.Class.Code,
+		&student.Class.Name,
+		&student.Class.Grade,
+		&student.Class.StartTime,
+	); err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, repo.ErrStudentNotFound
 		}

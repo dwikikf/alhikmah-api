@@ -8,25 +8,25 @@ import (
 	"github.com/dwikikf/alhikmah-api/internal/repository"
 )
 
-type StudentUsecase struct {
+type StudentUsecaseImpl struct {
 	ClassRepo   repository.ClassRepository   // untuk cek class saat create/update student
 	StudentRepo repository.StudentRepository // untuk GET
 	Uow         repository.UnitOfWork        // untuk WRITE
 }
 
-func NewStudentUseCase(
+func NewStudentUseCaseImpl(
 	classRepo repository.ClassRepository,
 	studentRepo repository.StudentRepository,
 	uow repository.UnitOfWork,
-) *StudentUsecase {
-	return &StudentUsecase{
+) *StudentUsecaseImpl {
+	return &StudentUsecaseImpl{
 		ClassRepo:   classRepo,
 		StudentRepo: studentRepo,
 		Uow:         uow,
 	}
 }
 
-func (u *StudentUsecase) GetAllStudents(ctx context.Context) ([]dto.StudentResponse, error) {
+func (u *StudentUsecaseImpl) GetAllStudents(ctx context.Context) ([]dto.StudentResponse, error) {
 	students, err := u.StudentRepo.FindAll(ctx)
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func (u *StudentUsecase) GetAllStudents(ctx context.Context) ([]dto.StudentRespo
 
 }
 
-func (u *StudentUsecase) GetStudentByID(ctx context.Context, id int) (*dto.StudentResponse, error) {
+func (u *StudentUsecaseImpl) GetStudentByID(ctx context.Context, id int) (*dto.StudentResponse, error) {
 	student, err := u.StudentRepo.FindByID(ctx, id)
 	if err != nil {
 		if student == nil {
@@ -45,21 +45,10 @@ func (u *StudentUsecase) GetStudentByID(ctx context.Context, id int) (*dto.Stude
 		return nil, err
 	}
 
-	return &dto.StudentResponse{
-		ID:   student.ID,
-		NISN: student.NISN,
-		Name: student.Name,
-		// ClassID: student.ClassID,
-		Class: dto.ClassResponse{
-			ID:    student.Class.ID,
-			Code:  student.Class.Code,
-			Name:  student.Class.Name,
-			Grade: student.Class.Grade,
-		},
-	}, nil
+	return dto.ToStudentResponse(*student), nil
 }
 
-func (u *StudentUsecase) CreateStudent(ctx context.Context, student dto.CreateStudentRequest) (*dto.StudentResponse, error) {
+func (u *StudentUsecaseImpl) CreateStudent(ctx context.Context, student dto.CreateStudentRequest) (*dto.StudentResponse, error) {
 	class, err := u.ClassRepo.FindByID(ctx, student.ClassID)
 	if err != nil {
 		if class == nil {
@@ -81,20 +70,22 @@ func (u *StudentUsecase) CreateStudent(ctx context.Context, student dto.CreateSt
 		return nil, err
 	}
 
+	// return dto.ToStudentResponse(*createdStudent), nil
 	return &dto.StudentResponse{
 		ID:   createdStudent.ID,
 		NISN: createdStudent.NISN,
 		Name: createdStudent.Name,
 		Class: dto.ClassResponse{
-			ID:    class.ID,
-			Code:  class.Code,
-			Name:  class.Name,
-			Grade: class.Grade,
+			ID:        class.ID,
+			Code:      class.Code,
+			Name:      class.Name,
+			Grade:     class.Grade,
+			StartTime: class.StartTime,
 		},
 	}, err
 }
 
-func (u *StudentUsecase) UpdateStudent(ctx context.Context, id int, student dto.UpdateStudentRequest) error {
+func (u *StudentUsecaseImpl) UpdateStudent(ctx context.Context, id int, student dto.UpdateStudentRequest) error {
 	class, err := u.ClassRepo.FindByID(ctx, student.ClassID)
 	if err != nil {
 		if class == nil {
@@ -123,7 +114,7 @@ func (u *StudentUsecase) UpdateStudent(ctx context.Context, id int, student dto.
 	})
 }
 
-func (u *StudentUsecase) DeleteStudent(ctx context.Context, id int) error {
+func (u *StudentUsecaseImpl) DeleteStudent(ctx context.Context, id int) error {
 	return u.Uow.Do(ctx, func(repo repository.Repository) error {
 		return repo.Student().Delete(ctx, id)
 	})

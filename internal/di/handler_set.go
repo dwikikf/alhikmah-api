@@ -8,4 +8,5 @@ import (
 var handlerSet = wire.NewSet(
 	handler.NewStudentHandler,
 	handler.NewClassHandler,
+	handler.NewAttendanceHandler,
 )

@@ -16,8 +16,16 @@ type StudentResponse struct {
 }
 
 type ClassResponse struct {
-	ID    int    `json:"id"`
-	Code  string `json:"code"`
-	Name  string `json:"name"`
-	Grade int    `json:"grade"`
+	ID        int     `json:"id"`
+	Code      string  `json:"code"`
+	Name      string  `json:"name"`
+	Grade     int     `json:"grade"`
+	StartTime *string `json:"start_time"`
+}
+
+type AttendanceResponse struct {
+	ID int `json:"id"`
+	// Student StudentResponse `json:"student"`
+	Status string `json:"status"`
+	Method string `json:"method"`
 }

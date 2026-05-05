@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/dwikikf/alhikmah-api/internal/domain"
 	"github.com/dwikikf/alhikmah-api/internal/infrastucture/database"
@@ -20,7 +22,7 @@ func NewClassRepository(db database.DBTX) *ClassRepositoryImpl {
 }
 
 func (r *ClassRepositoryImpl) FindAll(ctx context.Context) ([]domain.Class, error) {
-	rows, err := r.db.Query(ctx, "SELECT id, code, name, grade FROM classes")
+	rows, err := r.db.Query(ctx, "SELECT id, code, name, grade, start_time FROM classes")
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +31,7 @@ func (r *ClassRepositoryImpl) FindAll(ctx context.Context) ([]domain.Class, erro
 	var classes []domain.Class
 	for rows.Next() {
 		var class domain.Class
-		if err := rows.Scan(&class.ID, &class.Code, &class.Name, &class.Grade); err != nil {
+		if err := rows.Scan(&class.ID, &class.Code, &class.Name, &class.Grade, &class.StartTime); err != nil {
 			return nil, err
 		}
 		classes = append(classes, class)
@@ -43,10 +45,10 @@ func (r *ClassRepositoryImpl) FindAll(ctx context.Context) ([]domain.Class, erro
 }
 
 func (r *ClassRepositoryImpl) FindByID(ctx context.Context, id int) (*domain.Class, error) {
-	row := r.db.QueryRow(ctx, "SELECT id, code, name, grade FROM classes WHERE id = $1", id)
+	row := r.db.QueryRow(ctx, "SELECT id, code, name, grade, start_time FROM classes WHERE id = $1", id)
 
 	var class domain.Class
-	if err := row.Scan(&class.ID, &class.Code, &class.Name, &class.Grade); err != nil {
+	if err := row.Scan(&class.ID, &class.Code, &class.Name, &class.Grade, &class.StartTime); err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, repo.ErrClassNotFound
 		}
@@ -58,8 +60,24 @@ func (r *ClassRepositoryImpl) FindByID(ctx context.Context, id int) (*domain.Cla
 
 func (r *ClassRepositoryImpl) Create(ctx context.Context, class domain.Class) (int, error) {
 	var newID int
-	query := `INSERT INTO classes (code, name, grade) VALUES ($1, $2, $3) RETURNING id`
-	err := r.db.QueryRow(ctx, query, class.Code, class.Name, class.Grade).Scan(&newID)
+
+	columns := []string{"code", "name", "grade"}
+	values := []any{class.Code, class.Name, class.Grade}
+	placeholders := []string{"$1", "$2", "$3"}
+
+	if class.StartTime != nil {
+		columns = append(columns, "start_time")
+		values = append(values, class.StartTime)
+		placeholders = append(placeholders, fmt.Sprintf("$%d", len(values)))
+	}
+
+	query := fmt.Sprintf(`
+	INSERT INTO classes (%s)
+	VALUES (%s)
+	RETURNING id
+`, strings.Join(columns, ", "), strings.Join(placeholders, ", "))
+
+	err := r.db.QueryRow(ctx, query, values...).Scan(&newID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
@@ -75,10 +93,10 @@ func (r *ClassRepositoryImpl) Create(ctx context.Context, class domain.Class) (i
 func (r *ClassRepositoryImpl) Update(ctx context.Context, class domain.Class) error {
 	query := `
 		UPDATE classes
-		SET code = $1, name = $2, grade = $3
-		WHERE id = $4
+		SET code = $1, name = $2, grade = $3, start_time = $4
+		WHERE id = $5
 	`
-	cmdTag, err := r.db.Exec(ctx, query, class.Code, class.Name, class.Grade, class.ID)
+	cmdTag, err := r.db.Exec(ctx, query, class.Code, class.Name, class.Grade, class.StartTime, class.ID)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {

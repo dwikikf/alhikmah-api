@@ -7,22 +7,22 @@ import (
 	"github.com/dwikikf/alhikmah-api/internal/repository"
 )
 
-type ClassUsecase struct {
+type ClassUsecaseImpl struct {
 	ClassRepo repository.ClassRepository
 	uow       repository.UnitOfWork
 }
 
-func NewClassUseCase(
+func NewClassUseCaseImpl(
 	classRepo repository.ClassRepository,
 	uow repository.UnitOfWork,
-) *ClassUsecase {
-	return &ClassUsecase{
+) *ClassUsecaseImpl {
+	return &ClassUsecaseImpl{
 		ClassRepo: classRepo,
 		uow:       uow,
 	}
 }
 
-func (uc *ClassUsecase) GetAllClasses(ctx context.Context) ([]dto.ClassResponse, error) {
+func (uc *ClassUsecaseImpl) GetAllClasses(ctx context.Context) ([]dto.ClassResponse, error) {
 	classes, err := uc.ClassRepo.FindAll(ctx)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (uc *ClassUsecase) GetAllClasses(ctx context.Context) ([]dto.ClassResponse,
 	return dto.ToClassListResponse(classes), nil
 }
 
-func (uc *ClassUsecase) GetClassByID(ctx context.Context, id int) (*dto.ClassResponse, error) {
+func (uc *ClassUsecaseImpl) GetClassByID(ctx context.Context, id int) (*dto.ClassResponse, error) {
 	class, err := uc.ClassRepo.FindByID(ctx, id)
 	if err != nil {
 		if class == nil {
@@ -43,7 +43,7 @@ func (uc *ClassUsecase) GetClassByID(ctx context.Context, id int) (*dto.ClassRes
 	return dto.ToClassResponse(*class), nil
 }
 
-func (uc *ClassUsecase) CreateClass(ctx context.Context, class dto.CreateClassRequest) (int, error) {
+func (uc *ClassUsecaseImpl) CreateClass(ctx context.Context, class dto.CreateClassRequest) (int, error) {
 	var id int
 	classDomain := dto.ToCreateClassDomain(class)
 
@@ -60,7 +60,7 @@ func (uc *ClassUsecase) CreateClass(ctx context.Context, class dto.CreateClassRe
 	return id, nil
 }
 
-func (uc *ClassUsecase) UpdateClass(ctx context.Context, id int, class dto.UpdateClassRequest) error {
+func (uc *ClassUsecaseImpl) UpdateClass(ctx context.Context, id int, class dto.UpdateClassRequest) error {
 	classDomain := dto.ToUpdateClassDomain(id, class)
 
 	return uc.uow.Do(ctx, func(repo repository.Repository) error {
@@ -78,7 +78,7 @@ func (uc *ClassUsecase) UpdateClass(ctx context.Context, id int, class dto.Updat
 	})
 }
 
-func (uc *ClassUsecase) DeleteClass(ctx context.Context, id int) error {
+func (uc *ClassUsecaseImpl) DeleteClass(ctx context.Context, id int) error {
 	return uc.uow.Do(ctx, func(repo repository.Repository) error {
 		return repo.Class().Delete(ctx, id)
 	})

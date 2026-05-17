@@ -34,11 +34,11 @@ func (h *StudentHandler) GetAll(c *gin.Context) {
 	}
 
 	if len(students) == 0 {
-		SuccessResponse(c, http.StatusOK, "Siswa tidak ditemukan, data kosong", nil)
+		SuccessResponse(c, http.StatusOK, "No students found", nil)
 		return
 	}
 
-	SuccessResponse(c, http.StatusOK, "Siswa berhasil diambil", students)
+	SuccessResponse(c, http.StatusOK, "Students retrieved successfully", students)
 }
 
 func (h *StudentHandler) GetByID(c *gin.Context) {
@@ -47,14 +47,14 @@ func (h *StudentHandler) GetByID(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "ID siswa tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "Invalid student ID", nil)
 		return
 	}
 
 	student, err := h.Usecase.GetStudentByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, repository.ErrStudentNotFound) {
-			ErrorResponse(c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Student not found", nil)
 			return
 		}
 
@@ -62,7 +62,7 @@ func (h *StudentHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, http.StatusOK, "Siswa berhasil diambil", &student)
+	SuccessResponse(c, http.StatusOK, "Student retrieved successfully", &student)
 }
 
 func (h *StudentHandler) Create(c *gin.Context) {
@@ -70,24 +70,24 @@ func (h *StudentHandler) Create(c *gin.Context) {
 
 	var req dto.CreateStudentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "ID siswa tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "Invalid student ID", nil)
 		return
 	}
 
 	if validationErr := h.validator.Validate(req); validationErr != nil {
-		ErrorResponse(c, http.StatusUnprocessableEntity, "Data tidak valid", &validationErr)
+		ErrorResponse(c, http.StatusUnprocessableEntity, "Invalid student data", &validationErr)
 		return
 	}
 
 	student, err := h.Usecase.CreateStudent(ctx, req)
 	if err != nil {
 		if errors.Is(err, repository.ErrDuplicate) {
-			ErrorResponse(c, http.StatusConflict, "NISN sudah digunakan", nil)
+			ErrorResponse(c, http.StatusConflict, "NISN already exists", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrClassNotFound) {
-			ErrorResponse(c, http.StatusNotFound, "Kelas tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Class not found", nil)
 			return
 		}
 
@@ -95,7 +95,7 @@ func (h *StudentHandler) Create(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, http.StatusCreated, "Siswa berhasil dibuat", &student)
+	SuccessResponse(c, http.StatusCreated, "Student created successfully", &student)
 }
 
 func (h *StudentHandler) Update(c *gin.Context) {
@@ -105,40 +105,40 @@ func (h *StudentHandler) Update(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "ID siswa tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "Invalid student ID", nil)
 		return
 	}
 
 	var req dto.UpdateStudentRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "Data permintaan tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "Invalid request data", nil)
 		return
 	}
 
 	if validationErr := h.validator.Validate(req); validationErr != nil {
-		ErrorResponse(c, http.StatusUnprocessableEntity, "Data tidak valid", &validationErr)
+		ErrorResponse(c, http.StatusUnprocessableEntity, "Invalid student data", &validationErr)
 		return
 	}
 
 	err = h.Usecase.UpdateStudent(ctx, id, req)
 	if err != nil {
 		if errors.Is(err, repository.ErrClassNotFound) {
-			ErrorResponse(c, http.StatusNotFound, "Kelas tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Class not found", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrStudentNotFound) {
-			ErrorResponse(c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Student not found", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrDuplicate) {
-			ErrorResponse(c, http.StatusConflict, "NISN sudah digunakan", nil)
+			ErrorResponse(c, http.StatusConflict, "NISN already exists", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrForeignKey) {
-			ErrorResponse(c, http.StatusBadRequest, "Kelas tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusBadRequest, "Class not found", nil)
 			return
 		}
 
@@ -146,7 +146,7 @@ func (h *StudentHandler) Update(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, http.StatusOK, "Siswa berhasil diperbarui", nil)
+	SuccessResponse(c, http.StatusOK, "Student updated successfully", nil)
 }
 
 func (h *StudentHandler) Delete(c *gin.Context) {
@@ -155,19 +155,19 @@ func (h *StudentHandler) Delete(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		ErrorResponse(c, http.StatusBadRequest, "ID siswa tidak valid", nil)
+		ErrorResponse(c, http.StatusBadRequest, "Invalid student ID", nil)
 		return
 	}
 
 	err = h.Usecase.DeleteStudent(ctx, id)
 	if err != nil {
 		if errors.Is(err, repository.ErrStudentNotFound) {
-			ErrorResponse(c, http.StatusNotFound, "Siswa tidak ditemukan", nil)
+			ErrorResponse(c, http.StatusNotFound, "Student not found", nil)
 			return
 		}
 
 		if errors.Is(err, repository.ErrForeignKey) {
-			ErrorResponse(c, http.StatusConflict, "Gagal menghapus data. Data ini masih digunakan oleh data atau fitur lain.", nil)
+			ErrorResponse(c, http.StatusConflict, "Failed to delete data. This data is still being used by other data or features.", nil)
 			return
 		}
 
@@ -175,5 +175,5 @@ func (h *StudentHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, http.StatusOK, "Siswa berhasil dihapus", nil)
+	SuccessResponse(c, http.StatusOK, "Student deleted successfully", nil)
 }

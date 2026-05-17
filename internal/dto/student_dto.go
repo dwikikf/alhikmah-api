@@ -27,7 +27,6 @@ func ToStudentResponse(students domain.Student) *StudentResponse {
 		ID:   students.ID,
 		NISN: students.NISN,
 		Name: students.Name,
-		// ClassID: students.ClassID,
 		Class: ClassResponse{
 			ID:        students.Class.ID,
 			Code:      students.Class.Code,

@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/dwikikf/alhikmah-api/internal/di"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +19,20 @@ func main() {
 	attendanceHandler := app.Handlers.Attendance
 
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		// Izinkan origin dari aplikasi
+		AllowOrigins: []string{"http://localhost:5173"},
+
+		// Method HTTP yang diizinkan untuk diakses frontend
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+
+		// Header yang diizinkan dalam request
+		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization"},
+
+		// Izinkan browser mengirimkan cookie atau header autentikasi
+		AllowCredentials: true,
+	}))
 
 	r.GET("/students", studentHandler.GetAll)
 	r.GET("/students/:id", studentHandler.GetByID)

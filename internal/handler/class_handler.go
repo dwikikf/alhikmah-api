@@ -154,7 +154,7 @@ func (h *ClassHandler) Delete(c *gin.Context) {
 		}
 
 		if errors.Is(err, repository.ErrForeignKey) {
-			ErrorResponse(c, http.StatusConflict, "cannot delete student with existing references", nil)
+			ErrorResponse(c, http.StatusConflict, "Failed to delete data. This data is still being used by other data or features.", nil)
 			return
 		}
 

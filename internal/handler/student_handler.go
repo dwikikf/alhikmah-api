@@ -29,7 +29,7 @@ func (h *StudentHandler) GetAll(c *gin.Context) {
 
 	students, err := h.Usecase.GetAllStudents(ctx)
 	if err != nil {
-		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Internal Server Error", nil)
 		return
 	}
 
@@ -58,7 +58,7 @@ func (h *StudentHandler) GetByID(c *gin.Context) {
 			return
 		}
 
-		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Internal Server Error", nil)
 		return
 	}
 
@@ -91,7 +91,7 @@ func (h *StudentHandler) Create(c *gin.Context) {
 			return
 		}
 
-		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Internal Server Error", nil)
 		return
 	}
 
@@ -142,7 +142,7 @@ func (h *StudentHandler) Update(c *gin.Context) {
 			return
 		}
 
-		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		ErrorResponse(c, http.StatusInternalServerError, "Internal Server Error", nil)
 		return
 	}
 
@@ -166,7 +166,12 @@ func (h *StudentHandler) Delete(c *gin.Context) {
 			return
 		}
 
-		ErrorResponse(c, http.StatusInternalServerError, "Kesalahan sistem internal", nil)
+		if errors.Is(err, repository.ErrForeignKey) {
+			ErrorResponse(c, http.StatusConflict, "Gagal menghapus data. Data ini masih digunakan oleh data atau fitur lain.", nil)
+			return
+		}
+
+		ErrorResponse(c, http.StatusInternalServerError, "Internal Server Error", nil)
 		return
 	}
 

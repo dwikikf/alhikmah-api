@@ -122,6 +122,12 @@ func (r *StudentRepositoryImpl) Delete(ctx context.Context, id int) error {
 
 	cmdTag, err := r.db.Exec(ctx, query, id)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23503" { // foreign_key_violation
+				return repo.ErrForeignKey
+			}
+		}
 		return err
 	}
 

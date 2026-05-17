@@ -89,5 +89,5 @@ func (h *AttendanceHandler) CheckedIn(c *gin.Context) {
 		return
 	}
 
-	SuccessResponse(c, http.StatusCreated, "Terima Kasih", &id)
+	SuccessResponse(c, http.StatusCreated, "Attendance checked in successfully", &id)
 }

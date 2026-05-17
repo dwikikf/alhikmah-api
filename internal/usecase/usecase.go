@@ -24,6 +24,8 @@ type ClassUseCase interface {
 }
 
 type AttendanceUsecase interface {
+	GetAll(ctx context.Context) ([]dto.AttendanceResponse, error)
+	GetByID(ctx context.Context, id int) (*dto.AttendanceResponse, error)
 	IsCheckedIn(ctx context.Context, studentID int, date time.Time) (bool, error)
 	CheckIn(ctx context.Context, att dto.CreateAttendanceRequest) (int, error)
 }

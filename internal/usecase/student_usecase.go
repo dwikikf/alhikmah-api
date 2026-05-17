@@ -52,7 +52,7 @@ func (u *StudentUsecaseImpl) CreateStudent(ctx context.Context, student dto.Crea
 	class, err := u.ClassRepo.FindByID(ctx, student.ClassID)
 	if err != nil {
 		if class == nil {
-			return nil, repository.ErrStudentNotFound
+			return nil, repository.ErrClassNotFound
 		}
 		return nil, err
 	}

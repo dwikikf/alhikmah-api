@@ -9,18 +9,42 @@ import (
 )
 
 type AttendanceUsecaseImpl struct {
-	AttRepo repository.AttendanceRepository
-	uow     repository.UnitOfWork
+	StudentRepo repository.StudentRepository
+	AttRepo     repository.AttendanceRepository
+	uow         repository.UnitOfWork
 }
 
 func NewAttendanceUseCaseImpl(
+	StudentRepo repository.StudentRepository,
 	AttRepo repository.AttendanceRepository,
 	uow repository.UnitOfWork,
 ) *AttendanceUsecaseImpl {
 	return &AttendanceUsecaseImpl{
-		AttRepo: AttRepo,
-		uow:     uow,
+		StudentRepo: StudentRepo,
+		AttRepo:     AttRepo,
+		uow:         uow,
 	}
+}
+
+func (uc *AttendanceUsecaseImpl) GetAll(ctx context.Context) ([]dto.AttendanceResponse, error) {
+	attendances, err := uc.AttRepo.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return dto.ToAttendanceListResponse(attendances), nil
+}
+
+func (uc *AttendanceUsecaseImpl) GetByID(ctx context.Context, id int) (*dto.AttendanceResponse, error) {
+	attendance, err := uc.AttRepo.FindByID(ctx, id)
+	if err != nil {
+		if attendance == nil {
+			return nil, repository.ErrAttendanceNotFound
+		}
+		return nil, err
+	}
+
+	return dto.ToAttendanceResponse(*attendance), nil
 }
 
 func (uc *AttendanceUsecaseImpl) IsCheckedIn(ctx context.Context, studentID int, date time.Time) (bool, error) {
@@ -47,6 +71,15 @@ func (uc *AttendanceUsecaseImpl) IsCheckedIn(ctx context.Context, studentID int,
 
 func (uc *AttendanceUsecaseImpl) CheckIn(ctx context.Context, att dto.CreateAttendanceRequest) (int, error) {
 	var id int
+
+	student, err := uc.StudentRepo.FindByID(ctx, att.StudentID)
+	if err != nil {
+		return 0, err
+	}
+
+	if student == nil {
+		return 0, repository.ErrStudentNotFound
+	}
 
 	attDomain := dto.ToAttendanceDomain(att)
 

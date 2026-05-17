@@ -25,7 +25,12 @@ type ClassResponse struct {
 
 type AttendanceResponse struct {
 	ID int `json:"id"`
-	// Student StudentResponse `json:"student"`
-	Status string `json:"status"`
-	Method string `json:"method"`
+	// StudentID      int             `json:"student_id"`
+	Student        StudentResponse `json:"student"`
+	AttendanceDate string          `json:"attendance_date"`
+	CheckIn        string          `json:"check_in"`
+	Status         string          `json:"status"`
+	Method         string          `json:"method"`
+	Note           *string         `json:"note,omitempty"`
+	IsLate         *bool           `json:"is_late,omitempty"`
 }

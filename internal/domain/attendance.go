@@ -24,12 +24,12 @@ const (
 type Attendance struct {
 	ID             int
 	StudentID      int
-	Student        *Student
+	Student        Student
 	AttendanceDate *time.Time
 	CheckIn        time.Time
 	CheckOut       *time.Time
 	Status         AttendanceStatus
-	Method         AttendanceStatus
+	Method         AttendanceMethod
 	Note           *string
 	IsLate         *bool
 	CreatedAt      time.Time

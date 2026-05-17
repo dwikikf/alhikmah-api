@@ -31,6 +31,8 @@ func main() {
 	r.PUT("/classes/:id", classHandler.Update)
 	r.DELETE("/classes/:id", classHandler.Delete)
 
+	r.GET("/attendances", attendanceHandler.GetAll)
+	r.GET("/attendances/:id", attendanceHandler.GetByID)
 	r.POST("/checkin", attendanceHandler.CheckedIn)
 
 	r.GET("/ping", func(c *gin.Context) {

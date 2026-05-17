@@ -30,7 +30,7 @@ func InitializeApp() (*App, error) {
 	classUsecaseImpl := usecase.NewClassUseCaseImpl(classRepositoryImpl, unitOfWorkImpl)
 	classHandler := handler.NewClassHandler(classUsecaseImpl, customValidator)
 	attendanceRepositoryImpl := repository.NewAttendanceRepository(pool)
-	attendanceUsecaseImpl := usecase.NewAttendanceUseCaseImpl(attendanceRepositoryImpl, unitOfWorkImpl)
+	attendanceUsecaseImpl := usecase.NewAttendanceUseCaseImpl(studentRepositoryImpl, attendanceRepositoryImpl, unitOfWorkImpl)
 	attendanceHandler := handler.NewAttendanceHandler(attendanceUsecaseImpl, customValidator)
 	handlers := &Handlers{
 		Student:    studentHandler,

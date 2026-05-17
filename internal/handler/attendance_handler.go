@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/dwikikf/alhikmah-api/internal/dto"
 	"github.com/dwikikf/alhikmah-api/internal/repository"
@@ -18,6 +19,46 @@ type AttendanceHandler struct {
 
 func NewAttendanceHandler(usecase *usecase.AttendanceUsecaseImpl, validator *validator.CustomValidator) *AttendanceHandler {
 	return &AttendanceHandler{Usecase: usecase, Validator: validator}
+}
+
+func (h *AttendanceHandler) GetAll(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	attendances, err := h.Usecase.GetAll(ctx)
+	if err != nil {
+		ErrorResponse(c, http.StatusInternalServerError, "internal server error", nil)
+		return
+	}
+
+	if len(attendances) == 0 {
+		SuccessResponse(c, http.StatusOK, "no attendance records found", nil)
+		return
+	}
+
+	SuccessResponse(c, http.StatusOK, "attendance records retrieved successfully", attendances)
+}
+
+func (h *AttendanceHandler) GetByID(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		ErrorResponse(c, http.StatusBadRequest, "invalid attendance ID", nil)
+		return
+	}
+
+	attendance, err := h.Usecase.GetByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, repository.ErrAttendanceNotFound) {
+			ErrorResponse(c, http.StatusNotFound, "attendance record not found", nil)
+			return
+		}
+		ErrorResponse(c, http.StatusInternalServerError, "internal server error", nil)
+		return
+	}
+
+	SuccessResponse(c, http.StatusOK, "attendance record retrieved successfully", attendance)
 }
 
 func (h *AttendanceHandler) CheckedIn(c *gin.Context) {
@@ -36,6 +77,10 @@ func (h *AttendanceHandler) CheckedIn(c *gin.Context) {
 
 	id, err := h.Usecase.CheckIn(ctx, req)
 	if err != nil {
+		if errors.Is(err, repository.ErrStudentNotFound) {
+			ErrorResponse(c, http.StatusNotFound, "student not found", nil)
+			return
+		}
 		if errors.Is(err, repository.ErrAlreadyCheckedIn) {
 			ErrorResponse(c, http.StatusConflict, "student already checked in", nil)
 			return

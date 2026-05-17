@@ -3,9 +3,10 @@ package repository
 import "errors"
 
 var (
-	ErrNotFound        = errors.New("record not found")
-	ErrStudentNotFound = errors.New("student not found")
-	ErrClassNotFound   = errors.New("class not found")
+	ErrNotFound           = errors.New("record not found")
+	ErrStudentNotFound    = errors.New("student not found")
+	ErrClassNotFound      = errors.New("class not found")
+	ErrAttendanceNotFound = errors.New("attendance record not found")
 
 	ErrAlreadyCheckedIn = errors.New("student allready checked in")
 

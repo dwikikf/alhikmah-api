@@ -10,6 +10,7 @@ import (
 	"github.com/dwikikf/alhikmah-api/internal/domain"
 	"github.com/dwikikf/alhikmah-api/internal/infrastucture/database"
 	repo "github.com/dwikikf/alhikmah-api/internal/repository"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -19,6 +20,88 @@ type AttendanceRepositoryImpl struct {
 
 func NewAttendanceRepository(db database.DBTX) *AttendanceRepositoryImpl {
 	return &AttendanceRepositoryImpl{db: db}
+}
+
+func (r *AttendanceRepositoryImpl) FindAll(ctx context.Context) ([]domain.Attendance, error) {
+	query := `
+		SELECT a.id, s.id, s.nisn, s.name, a.attendance_date, a.check_in, a.status, a.method, a.note, a.is_late, c.id, c.code, c.name, c.grade, c.start_time
+			FROM attendances a
+			INNER JOIN students s ON a.student_id = s.id
+			INNER JOIN classes c ON s.class_id = c.id
+	`
+	rows, err := r.db.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var attendances []domain.Attendance
+	for rows.Next() {
+		var att domain.Attendance
+		if err := rows.Scan(
+			&att.ID,
+			&att.Student.ID,
+			&att.Student.NISN,
+			&att.Student.Name,
+			&att.AttendanceDate,
+			&att.CheckIn,
+			&att.Status,
+			&att.Method,
+			&att.Note,
+			&att.IsLate,
+			&att.Student.Class.ID,
+			&att.Student.Class.Code,
+			&att.Student.Class.Name,
+			&att.Student.Class.Grade,
+			&att.Student.Class.StartTime,
+		); err != nil {
+			return nil, err
+		}
+		attendances = append(attendances, att)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return attendances, nil
+}
+
+func (r *AttendanceRepositoryImpl) FindByID(ctx context.Context, id int) (*domain.Attendance, error) {
+	query := `
+		SELECT a.id, s.id, s.nisn, s.name, a.attendance_date, a.check_in, a.status, a.method, a.note, a.is_late, c.id, c.code, c.name, c.grade, c.start_time
+			FROM attendances a
+			INNER JOIN students s ON a.student_id = s.id
+			INNER JOIN classes c ON s.class_id = c.id
+		WHERE a.id = $1
+	`
+	row := r.db.QueryRow(ctx, query, id)
+
+	var att domain.Attendance
+	if err := row.Scan(
+		&att.ID,
+		&att.Student.ID,
+		&att.Student.NISN,
+		&att.Student.Name,
+		&att.AttendanceDate,
+		&att.CheckIn,
+		&att.Status,
+		&att.Method,
+		&att.Note,
+		&att.IsLate,
+		&att.Student.Class.ID,
+		&att.Student.Class.Code,
+		&att.Student.Class.Name,
+		&att.Student.Class.Grade,
+		&att.Student.Class.StartTime,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, repo.ErrAttendanceNotFound
+		}
+		return nil, err
+	}
+
+	return &att, nil
 }
 
 func (r *AttendanceRepositoryImpl) ExistByStudentAndDate(

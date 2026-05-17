@@ -86,7 +86,7 @@ func (h *StudentHandler) Create(c *gin.Context) {
 			return
 		}
 
-		if errors.Is(err, repository.ErrStudentNotFound) {
+		if errors.Is(err, repository.ErrClassNotFound) {
 			ErrorResponse(c, http.StatusNotFound, "Kelas tidak ditemukan", nil)
 			return
 		}
